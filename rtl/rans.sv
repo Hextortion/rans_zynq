@@ -31,8 +31,8 @@ initial begin
 end
 
 logic en_r;
-logic [RESOLUTION - 1:0] freq_r;
-logic [RESOLUTION - 1:0] cum_freq_r;
+logic [RESOLUTION - 1 : 0] freq_r;
+logic [RESOLUTION - 1 : 0] cum_freq_r;
 
 always_ff @(posedge clk_i) begin
     if (freq_wr_i)
@@ -69,22 +69,25 @@ always_comb begin
     quotient_intr = state_r * rcp_r;
     quotient = quotient_intr[2 * STATE_WIDTH - 1 : STATE_WIDTH - 1] >> shift_r;
     state_intr = (state_r + cum_freq_2r) + (cmpl_freq_r * quotient);
-    output_bits = state_intr > L_MAX;
+    output_bits = state_intr >= L_MAX;
 end
 
 always_ff @(posedge clk_i) begin
     valid_o <= output_bits && en_2r;
     if (output_bits)
-        enc_o <= state_intr[SYMBOL_WIDTH:0];
+        enc_o <= state_intr[SYMBOL_WIDTH - 1: 0];
 end
 
 always_ff @(posedge clk_i or posedge rst_i) begin
     if (rst_i) begin
         state_r <= L_MIN;
     end else begin
-        if (en_2r)
+        if (en_2r) begin
             if (output_bits)
                 state_r <= state_intr[2 * STATE_WIDTH + RESOLUTION - 1 : SYMBOL_WIDTH];
+            else
+                state_r <= state_intr;
+        end
     end
 end
 
