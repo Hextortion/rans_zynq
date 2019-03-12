@@ -38,7 +38,7 @@ genvar i;
     for (i = 0; i < 4; i = i + 1) begin : gen_clk_buf
         assign clk_div[i] = clk_i && clk_div_en_r[i];
     end
-`elsif
+`else
     for (i = 0; i < 4; i = i + 1) begin : gen_clk_buf
         BUFGCE I_clk_buf(.I(clk_i), .CE(clk_div_en_r[i]), .O(clk_div[i]));
     end
