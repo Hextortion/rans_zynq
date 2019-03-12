@@ -46,10 +46,10 @@ always_ff @(posedge clk_i) begin
 end
 
 logic en_2r;
-logic [RESOLUTION - 1:0] cmpl_freq_r;
-logic [STATE_WIDTH - 1:0] rcp_r;
-logic [3:0] shift_r;
-logic [RESOLUTION - 1:0] cum_freq_2r;
+logic [RESOLUTION - 1 : 0] cmpl_freq_r;
+logic [STATE_WIDTH - 1 : 0] rcp_r;
+logic [SHIFT_WIDTH - 1 : 0] shift_r;
+logic [RESOLUTION - 1 : 0] cum_freq_2r;
 
 always_ff @(posedge clk_i) begin
     en_2r <= en_r;
