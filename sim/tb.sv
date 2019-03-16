@@ -21,8 +21,8 @@ initial begin
     Transaction #(RESOLUTION, SYMBOL_WIDTH) transaction = new(100000);
     fork
         driver.gen_clk();
-        driver.reset();
     join_none
+    driver.reset();
     driver.drive(transaction);
 end
 

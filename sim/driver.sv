@@ -1,5 +1,5 @@
-`include "rans_if.sv"
-`include "transaction.sv"
+// `include "rans_if.sv"
+// `include "transaction.sv"
 
 class Driver #(
     parameter RESOLUTION = 10,
@@ -29,21 +29,24 @@ class Driver #(
     endtask
 
     task drive(ref Transaction #(RESOLUTION, SYMBOL_WIDTH) transaction);
-        @(posedge iface.clk_i);
-        for (int i = 0; i < 2 ** SYMBOL_WIDTH; i = i + 1) begin
-            iface.freq_wr_i = 1'b1;
-            iface.symb_i = i;
-            iface.freq_i = transaction.pdf[i];
-            iface.cum_freq_i = transaction.cdf[i];
+        for (int i = 0; i < 2 ** SYMBOL_WIDTH;) begin
             @(posedge iface.clk_i);
+            if (iface.ready_o) begin
+                iface.freq_wr_i = 1'b1;
+                iface.symb_i = i;
+                iface.freq_i = transaction.pdf[i];
+                iface.cum_freq_i = transaction.cdf[i];
+                i = i + 1;
+            end
         end
 
-        iface.freq_wr_i = 1'b0;
         @(posedge iface.clk_i);
+        iface.freq_wr_i = 1'b0;
+
         for (int i = 0; i < transaction.symbols.size(); i = i + 1) begin
+            @(posedge iface.clk_i);
             iface.en_i = 1'b1;
             iface.symb_i = transaction.symbols[i];
-            @(posedge iface.clk_i);
         end
 
         iface.en_i = 1'b0;
