@@ -27,8 +27,14 @@ localparam L_MAX = L_MIN << SYMBOL_WIDTH;
 logic [2 * RESOLUTION - 1 : 0] freqtable [2 ** SYMBOL_WIDTH];
 logic [DIVTABLE_WIDTH - 1 : 0] divtable [2 ** RESOLUTION];
 
+`ifdef SIMULATION
+    `define HEX_PATH "rtl/"
+`else
+    `define HEX_PATH ""
+`endif
+
 initial begin
-    $readmemh("divtable.mem", divtable);
+    $readmemh({`HEX_PATH, "divtable.mem"}, divtable);
 end
 
 logic en_r;
