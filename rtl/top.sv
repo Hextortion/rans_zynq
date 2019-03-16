@@ -12,7 +12,7 @@ module top #(
 
 logic [1:0] cnt_r;
 logic [3:0] clk_div_en_r;
-logic [3:0] clk_div;
+logic clk_div [4];
 
 always_ff @(posedge iface.clk_i or posedge iface.rst_i) begin
     if (iface.rst_i) begin
@@ -24,8 +24,20 @@ always_ff @(posedge iface.clk_i or posedge iface.rst_i) begin
     end
 end
 
+logic [1:0] freq_wr_cnt_r;
+always_ff @(posedge iface.clk_i or posedge iface.rst_i) begin
+    if (iface.rst_i) begin
+        freq_wr_cnt_r <= 0;
+    end else begin
+        if (freq_wr_cnt_r) freq_wr_cnt_r <= freq_wr_cnt_r + 1;
+        if (iface.freq_wr_i && !freq_wr_cnt_r) freq_wr_cnt_r <= 1;
+    end
+end
+
+assign iface.ready_o = !freq_wr_cnt_r;
+
 logic valid [4];
-logic [7:0] enc [4];
+logic [SYMBOL_WIDTH - 1 : 0] enc [4];
 
 genvar i;
 
