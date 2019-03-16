@@ -13,8 +13,12 @@ interface rans_if #(
     logic valid_o;
     logic [SYMBOL_WIDTH - 1 : 0] enc_o;
 
-    modport tb (input ready_o, valid_o, enc_o,
-                output clk_i, rst_i, en_i, freq_wr_i, freq_i, cum_freq_i, symb_i);
+    clocking cb @(posedge clk_i);
+        input ready_o, valid_o, enc_o;
+        output rst_i, en_i, freq_wr_i, freq_i, cum_freq_i, symb_i;
+    endclocking
+
+    modport tb (output clk_i, clocking cb);
 
     modport dut (output ready_o, valid_o, enc_o,
                  input clk_i, rst_i, en_i, freq_wr_i, freq_i, cum_freq_i, symb_i);
