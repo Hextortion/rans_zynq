@@ -31,7 +31,7 @@ genvar i;
 
 `ifdef SIMULATION
     for (i = 0; i < 4; i = i + 1) begin : gen_clk_buf
-        assign clk_div[i] = iface.clk_i && clk_div_en_r[i];
+        assign clk_div[i] = clk_div_en_r[i];
     end
 `else
     for (i = 0; i < 4; i = i + 1) begin : gen_clk_buf
