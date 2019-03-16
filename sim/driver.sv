@@ -1,6 +1,3 @@
-// `include "rans_if.sv"
-// `include "transaction.sv"
-
 class Driver #(
     parameter RESOLUTION = 10,
     parameter SYMBOL_WIDTH = 8

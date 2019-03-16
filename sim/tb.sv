@@ -2,6 +2,7 @@
 `default_nettype none
 
 `include "rans_if.sv"
+import RansTestPackage::*;
 
 module tb;
 
