@@ -32,6 +32,7 @@ class Driver #(
         @(posedge iface.clk_i);
         for (int i = 0; i < 2 ** SYMBOL_WIDTH; i = i + 1) begin
             iface.freq_wr_i = 1'b1;
+            iface.symb_i = i;
             iface.freq_i = transaction.pdf[i];
             iface.cum_freq_i = transaction.cdf[i];
             @(posedge iface.clk_i);
