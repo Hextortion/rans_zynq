@@ -1,19 +1,20 @@
 `timescale 1ns / 1ps
+`default_nettype none
 
 module rans #(
     parameter RESOLUTION = 10,
     parameter SYMBOL_WIDTH = 8,
     parameter SHIFT_WIDTH = 4
 ) (
-    input logic clk_i,
-    input logic rst_i,
-    input logic en_i,
-    input logic freq_wr_i,
-    input logic [RESOLUTION - 1 : 0] freq_i,
-    input logic [RESOLUTION - 1 : 0] cum_freq_i,
-    input logic [SYMBOL_WIDTH - 1 : 0] symb_i,
-    output logic valid_o,
-    output logic [SYMBOL_WIDTH - 1 : 0] enc_o
+    input var logic clk_i,
+    input var logic rst_i,
+    input var logic en_i,
+    input var logic freq_wr_i,
+    input var logic [RESOLUTION - 1 : 0] freq_i,
+    input var logic [RESOLUTION - 1 : 0] cum_freq_i,
+    input var logic [SYMBOL_WIDTH - 1 : 0] symb_i,
+    output var logic valid_o,
+    output var logic [SYMBOL_WIDTH - 1 : 0] enc_o
 );
 
 localparam DIVTABLE_WIDTH = RESOLUTION + SYMBOL_WIDTH + SHIFT_WIDTH;
