@@ -5,26 +5,27 @@
 
 module top #(
     parameter RESOLUTION = 10,
-    parameter SYMBOL_WIDTH = 8
+    parameter SYMBOL_WIDTH = 8,
+    parameter NUM_RANS = 4
 )(
     rans_if.dut iface
 );
 
-logic [1:0] cnt_r;
-logic [3:0] clk_div_en_r;
-logic clk_div [4];
+logic [$clog2(NUM_RANS) - 1 : 0] cnt_r;
+logic [NUM_RANS - 1 : 0] clk_div_en_r;
+logic clk_div [NUM_RANS];
 
 always_ff @(posedge iface.clk_i or posedge iface.rst_i) begin
     if (iface.rst_i) begin
-        cnt_r <= 'd0;
-        clk_div_en_r <= 4'b0001;
+        cnt_r <= 0;
+        clk_div_en_r <= 1;
     end else begin
-        cnt_r <= cnt_r + 'd1;
-        clk_div_en_r <= {clk_div_en_r[2:0], clk_div_en_r[3]};
+        cnt_r <= cnt_r + 1;
+        clk_div_en_r <= {clk_div_en_r[NUM_RANS - 2 : 0], clk_div_en_r[NUM_RANS - 1]};
     end
 end
 
-logic [1:0] freq_wr_cnt_r;
+logic [$clog2(NUM_RANS) - 1 : 0] freq_wr_cnt_r;
 always_ff @(posedge iface.clk_i or posedge iface.rst_i) begin
     if (iface.rst_i) begin
         freq_wr_cnt_r <= 0;
@@ -36,31 +37,31 @@ end
 
 assign iface.ready_o = !freq_wr_cnt_r;
 
-logic valid [4];
-logic [SYMBOL_WIDTH - 1 : 0] enc [4];
+logic valid [NUM_RANS];
+logic [SYMBOL_WIDTH - 1 : 0] enc [NUM_RANS];
 
 genvar i;
 
 `ifdef SIMULATION
-    for (i = 0; i < 4; i = i + 1) begin : gen_clk_buf
+    for (i = 0; i < NUM_RANS; i = i + 1) begin : gen_clk_buf
         assign clk_div[i] = clk_div_en_r[i];
     end
 `else
-    for (i = 0; i < 4; i = i + 1) begin : gen_clk_buf
+    for (i = 0; i < NUM_RANS; i = i + 1) begin : gen_clk_buf
         BUFGCE I_clk_buf(.I(iface.clk_i), .CE(clk_div_en_r[i]), .O(clk_div[i]));
     end
 `endif
 
-logic en_r [4];
-logic [SYMBOL_WIDTH - 1 : 0] symb_r [4];
-for (i = 0; i < 4; i = i + 1) begin
+logic en_r [NUM_RANS];
+logic [SYMBOL_WIDTH - 1 : 0] symb_r [NUM_RANS];
+for (i = 0; i < NUM_RANS; i = i + 1) begin
     always @(posedge clk_div[i]) begin
         en_r[i] <= iface.en_i;
         symb_r[i] <= iface.symb_i;
     end
 end
 
-for (i = 0; i < 4; i = i + 1) begin : gen_rans
+for (i = 0; i < NUM_RANS; i = i + 1) begin : gen_rans
     rans I_rans(
         .clk_i(clk_div[i]),
         .rst_i(iface.rst_i),
