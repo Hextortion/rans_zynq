@@ -34,10 +34,14 @@ class Driver #(
                 iface.cb.freq_i <= transaction.pdf[i];
                 iface.cb.cum_freq_i <= transaction.cdf[i];
                 i = i + 1;
+                wait (!iface.cb.ready_o);
             end
         end
 
-        @(iface.cb);
+        while (1) begin
+            @(iface.cb);
+            if (iface.cb.ready_o) break;
+        end
         iface.cb.freq_wr_i <= 1'b0;
 
         for (int i = 0; i < transaction.symbols.size(); i = i + 1) begin
