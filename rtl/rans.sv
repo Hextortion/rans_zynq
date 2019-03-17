@@ -10,6 +10,7 @@ module rans #(
     input var logic rst_i,
     input var logic en_i,
     input var logic freq_wr_i,
+    input var logic [SYMBOL_WIDTH - 1 : 0] freq_addr_i,
     input var logic [RESOLUTION - 1 : 0] freq_i,
     input var logic [RESOLUTION - 1 : 0] cum_freq_i,
     input var logic [SYMBOL_WIDTH - 1 : 0] symb_i,
@@ -43,7 +44,7 @@ logic [RESOLUTION - 1 : 0] cum_freq_r;
 
 always_ff @(posedge clk_i) begin
     if (freq_wr_i)
-        freqtable[symb_i] <= {freq_i, cum_freq_i};
+        freqtable[freq_addr_i] <= {freq_i, cum_freq_i};
 end
 
 always_ff @(posedge clk_i) begin
