@@ -51,15 +51,24 @@ genvar i;
     end
 `endif
 
+logic en_r [4];
+logic [SYMBOL_WIDTH - 1 : 0] symb_r [4];
+for (i = 0; i < 4; i = i + 1) begin
+    always @(posedge clk_div[i]) begin
+        en_r[i] <= iface.en_i;
+        symb_r[i] <= iface.symb_i;
+    end
+end
+
 for (i = 0; i < 4; i = i + 1) begin : gen_rans
     rans I_rans(
         .clk_i(clk_div[i]),
         .rst_i(iface.rst_i),
-        .en_i(iface.en_i),
+        .en_i(en_r[i]),
         .freq_wr_i(iface.freq_wr_i),
         .freq_i(iface.freq_i),
         .cum_freq_i(iface.cum_freq_i),
-        .symb_i(iface.symb_i),
+        .symb_i(symb_r[i]),
         .valid_o(valid[i]),
         .enc_o(enc[i])
     );
