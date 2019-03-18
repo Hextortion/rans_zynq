@@ -6,4 +6,5 @@
 package RansTestPackage;
     `include "transaction.sv"
     `include "driver.sv"
+    `include "monitor.sv"
 endpackage : RansTestPackage

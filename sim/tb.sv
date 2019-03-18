@@ -16,11 +16,15 @@ top I_dut(iface.dut);
 initial begin
     Driver #(RESOLUTION, SYMBOL_WIDTH) driver = new(iface);
     Transaction #(RESOLUTION, SYMBOL_WIDTH) transaction = new(100000);
+    Monitor #(RESOLUTION, SYMBOL_WIDTH) monitor = new(iface);
     fork
         driver.gen_clk();
     join_none
     driver.reset();
-    driver.drive(transaction);
+    fork
+        driver.drive(transaction);
+        monitor.run(transaction);
+    join
 end
 
 endmodule
