@@ -76,7 +76,9 @@ for (i = 0; i < NUM_RANS; i = i + 1) begin : gen_rans
     );
 end
 
-assign iface.valid_o = valid[cnt_r];
-assign iface.enc_o = enc[cnt_r];
+always @(posedge iface.clk_i) begin
+    iface.valid_o <= valid[cnt_r];
+    iface.enc_o <= enc[cnt_r];
+end
 
 endmodule
