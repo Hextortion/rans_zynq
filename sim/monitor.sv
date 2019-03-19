@@ -16,6 +16,7 @@ class Monitor #(
     endfunction
 
     function longint encode(longint state, longint freq, longint cum_freq);
+        $display("%h %h %h %h", state, ((state / freq) << RESOLUTION), (state % freq), cum_freq);
         encode = ((state / freq) << RESOLUTION) + (state % freq) + cum_freq;
     endfunction
 
@@ -25,33 +26,44 @@ class Monitor #(
         int symb_idx = 0;
         int symbol;
         bit received_first_symbol = 0;
+        int num_errors = 0;
+        bit [$clog2(NUM_RANS) - 1 : 0] output_bits;
 
         for (i = 0; i < NUM_RANS; i = i + 1) begin
-            state[enc_cnt] = L_MIN;
+            output_bits[i] = 0;
+            state[i] = L_MIN;
         end
 
-        for (symb_idx = 0; symb_idx < transaction.symbols.size();) begin
+        for (symb_idx = 0; num_errors < 10 && symb_idx < transaction.symbols.size();) begin
             @(iface.cb);
             if (iface.cb.valid_o) begin
                 received_first_symbol = 1;
                 if (received_first_symbol) begin
                     symbol = transaction.symbols[symb_idx];
-                    symb_idx = symb_idx + 1;
                 end
+            end
 
+            if (received_first_symbol) begin
                 state[enc_cnt] = encode(state[enc_cnt],
                         transaction.pdf[symbol], transaction.cdf[symbol]);
 
-                if (state[enc_cnt] >= L_MAX) begin
+                if (output_bits[enc_cnt]) begin
                     if (iface.cb.enc_o != state[enc_cnt][SYMBOL_WIDTH - 1 : 0]) begin
-                        $display("rANS Encoder %d Failed. Symbols Encoded: %d, Exp: %d, Obs: %d", enc_cnt,
+                        num_errors = num_errors + 1;
+                        $error("rANS Encoder %d Failed. Symbols Encoded: %d, Exp: %h, Obs: %h", enc_cnt,
                                 symb_idx, state[enc_cnt][SYMBOL_WIDTH - 1 : 0], iface.cb.enc_o);
+                        $display("cum freq: %h, freq: %h, symbol: %h", transaction.cdf[symbol], transaction.pdf[symbol], symbol);
                     end
+                end
 
+                output_bits[enc_cnt] = state[enc_cnt] >= L_MAX;
+                if (state[enc_cnt] >= L_MAX) begin
                     state[enc_cnt] = state[enc_cnt] >> SYMBOL_WIDTH;
                 end
+
+                symb_idx = symb_idx + 1;
+                enc_cnt = enc_cnt + 1;
             end
-            enc_cnt = enc_cnt + 1;
         end
 
         $stop;
