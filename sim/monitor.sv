@@ -25,44 +25,32 @@ class Monitor #(
         int i;
         int symb_idx = 0;
         int symbol;
-        bit received_first_symbol = 0;
-        int num_errors = 0;
-        bit [$clog2(NUM_RANS) - 1 : 0] output_bits;
+        int errors = 0;
+        longint state [NUM_RANS];
+        bit [SYMBOL_WIDTH - 1 : 0] encoded [$];
 
         for (i = 0; i < NUM_RANS; i = i + 1) begin
-            output_bits[i] = 0;
             state[i] = L_MIN;
         end
 
-        for (symb_idx = 0; num_errors < 10 && symb_idx < transaction.symbols.size();) begin
-            @(iface.cb);
-            if (iface.cb.valid_o) begin
-                received_first_symbol = 1;
-                if (received_first_symbol) begin
-                    symbol = transaction.symbols[symb_idx];
-                end
+        for (symb_idx = 0; symb_idx < transaction.symbols.size(); symb_idx = symb_idx + 1) begin
+            symbol = transaction.symbols[symb_idx];
+            state[enc_cnt] = encode(state[enc_cnt], transaction.pdf[symbol], transaction.cdf[symbol]);
+            while (state[enc_cnt] >= L_MAX) begin
+                encoded.push_back(state[enc_cnt][SYMBOL_WIDTH - 1 : 0]);
+                state[enc_cnt] = state[enc_cnt] >> SYMBOL_WIDTH;
             end
+            enc_cnt = enc_cnt + 1;
+        end
 
-            if (received_first_symbol) begin
-                state[enc_cnt] = encode(state[enc_cnt],
-                        transaction.pdf[symbol], transaction.cdf[symbol]);
-
-                if (output_bits[enc_cnt]) begin
-                    if (iface.cb.enc_o != state[enc_cnt][SYMBOL_WIDTH - 1 : 0]) begin
-                        num_errors = num_errors + 1;
-                        $error("rANS Encoder %d Failed. Symbols Encoded: %d, Exp: %h, Obs: %h", enc_cnt,
-                                symb_idx, state[enc_cnt][SYMBOL_WIDTH - 1 : 0], iface.cb.enc_o);
-                        $display("cum freq: %h, freq: %h, symbol: %h", transaction.cdf[symbol], transaction.pdf[symbol], symbol);
-                    end
+        while (encoded.size()) begin
+            @(iface.cb)
+            if (iface.cb.valid_o) begin
+                if (iface.cb.enc_o != encoded[0]) begin
+                    $error("Mismatch #%d, Obs: %h, Exp: %h", errors, iface.cb.enc_o, encoded[0]);
+                    errors = errors + 1;
                 end
-
-                output_bits[enc_cnt] = state[enc_cnt] >= L_MAX;
-                if (state[enc_cnt] >= L_MAX) begin
-                    state[enc_cnt] = state[enc_cnt] >> SYMBOL_WIDTH;
-                end
-
-                symb_idx = symb_idx + 1;
-                enc_cnt = enc_cnt + 1;
+                encoded.pop_front();
             end
         end
 
