@@ -10,8 +10,8 @@ interface rans_if #(
     logic [RESOLUTION - 1 : 0] cum_freq_i;
     logic [SYMBOL_WIDTH - 1 : 0] symb_i;
     logic ready_o;
-    logic valid_o;
-    logic [SYMBOL_WIDTH - 1 : 0] enc_o;
+    logic [1 : 0] valid_o;
+    logic [2 * SYMBOL_WIDTH - 1 : 0] enc_o;
 
     clocking cb @(posedge clk_i);
         input ready_o, valid_o, enc_o;

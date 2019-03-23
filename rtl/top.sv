@@ -37,8 +37,8 @@ end
 
 assign iface.ready_o = !freq_wr_cnt_r;
 
-logic valid [NUM_RANS];
-logic [SYMBOL_WIDTH - 1 : 0] enc [NUM_RANS];
+logic [1 : 0] valid [NUM_RANS];
+logic [2 * SYMBOL_WIDTH - 1 : 0] enc [NUM_RANS];
 
 genvar i;
 

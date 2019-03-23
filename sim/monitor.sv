@@ -16,7 +16,6 @@ class Monitor #(
     endfunction
 
     function longint encode(longint state, longint freq, longint cum_freq);
-        $display("%h %h %h %h", state, ((state / freq) << RESOLUTION), (state % freq), cum_freq);
         encode = ((state / freq) << RESOLUTION) + (state % freq) + cum_freq;
     endfunction
 
@@ -45,12 +44,14 @@ class Monitor #(
 
         while (encoded.size()) begin
             @(iface.cb)
-            if (iface.cb.valid_o) begin
-                if (iface.cb.enc_o != encoded[0]) begin
-                    $error("Mismatch #%d, Obs: %h, Exp: %h", errors, iface.cb.enc_o, encoded[0]);
-                    errors = errors + 1;
+            for (i = 0; i < 2; i = i + 1) begin
+                if (iface.cb.valid_o[i]) begin
+                    if (iface.cb.enc_o[(i + 1) * SYMBOL_WIDTH - 1 -: SYMBOL_WIDTH] != encoded[0]) begin
+                        $error("Mismatch #%d, Obs: %h, Exp: %h", errors, iface.cb.enc_o, encoded[0]);
+                        errors = errors + 1;
+                    end
+                    encoded.pop_front();
                 end
-                encoded.pop_front();
             end
         end
 
