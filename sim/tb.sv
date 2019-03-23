@@ -11,7 +11,7 @@ localparam SYMBOL_WIDTH = 8;
 
 rans_if #(RESOLUTION, SYMBOL_WIDTH) iface();
 
-top I_dut(iface.dut);
+rans_multi_stream I_dut(iface.dut);
 
 initial begin
     Driver #(RESOLUTION, SYMBOL_WIDTH) driver = new(iface);
