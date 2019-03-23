@@ -31,7 +31,7 @@ always_ff @(posedge iface.clk_i or posedge iface.rst_i) begin
         freq_wr_cnt_r <= 0;
     end else begin
         if (freq_wr_cnt_r) freq_wr_cnt_r <= freq_wr_cnt_r + 1;
-        if (iface.freq_wr_i && !freq_wr_cnt_r) freq_wr_cnt_r <= 1;
+        if ((iface.freq_wr_i || iface.restart_i) && !freq_wr_cnt_r) freq_wr_cnt_r <= 1;
     end
 end
 
