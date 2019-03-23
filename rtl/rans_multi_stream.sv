@@ -3,7 +3,7 @@
 
 `include "rans_if.sv"
 
-module top #(
+module rans_multi_stream #(
     parameter RESOLUTION = 10,
     parameter SYMBOL_WIDTH = 8,
     parameter NUM_RANS = 4
@@ -62,11 +62,11 @@ for (i = 0; i < NUM_RANS; i = i + 1) begin
 end
 
 for (i = 0; i < NUM_RANS; i = i + 1) begin : gen_rans
-    rans I_rans(
+    rans_stream I_rans(
         .clk_i(clk_div[i]),
-        .rst_i(iface.rst_i),
         .en_i(en_r[i]),
         .freq_wr_i(iface.freq_wr_i),
+        .restart_i(1'b0),
         .freq_addr_i(iface.symb_i),
         .freq_i(iface.freq_i),
         .cum_freq_i(iface.cum_freq_i),

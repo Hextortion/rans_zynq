@@ -1,15 +1,15 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module rans #(
+module rans_stream #(
     parameter RESOLUTION = 10,
     parameter SYMBOL_WIDTH = 8,
     parameter SHIFT_WIDTH = 4
 ) (
     input var logic clk_i,
-    input var logic rst_i,
     input var logic en_i,
     input var logic freq_wr_i,
+    input var logic restart_i,
     input var logic [SYMBOL_WIDTH - 1 : 0] freq_addr_i,
     input var logic [RESOLUTION - 1 : 0] freq_i,
     input var logic [RESOLUTION - 1 : 0] cum_freq_i,
@@ -87,8 +87,8 @@ always_ff @(posedge clk_i) begin
     enc_o <= state_intr[2 * SYMBOL_WIDTH - 1: 0];
 end
 
-always_ff @(posedge clk_i or posedge rst_i) begin
-    if (rst_i) begin
+always_ff @(posedge clk_i) begin
+    if (restart_i) begin
         state_r <= L_MIN;
     end else begin
         if (en_2r) begin
