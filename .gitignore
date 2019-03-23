@@ -1,4 +1,6 @@
 work/
 transcript
 *.wlf
+wlf*
+*.vstf
 rans_zynq.*
