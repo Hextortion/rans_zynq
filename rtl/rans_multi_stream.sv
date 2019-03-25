@@ -1,8 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-`include "rans_if.sv"
-
 module rans_multi_stream #(
     parameter RESOLUTION = 10,
     parameter SYMBOL_WIDTH = 8,

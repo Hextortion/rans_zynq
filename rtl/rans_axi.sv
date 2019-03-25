@@ -3,11 +3,10 @@ module rans_axi #(
     parameter SYMBOL_WIDTH = 8,
     parameter NUM_RANS = 4
 ) (
-    input clk_i,
-    input rst_i,
+    input var logic clk_i,
+    input var logic rst_i,
     axi_lite_if.slave ctrl_if,
-    axi_stream_if.slave stream_in_if,
-    axi_stream_if.master stream_out_if
+    axi_lite_if.master mem_if,
 );
 
 localparam ADDR_WIDTH = SYMBOL_WIDTH + 1;
@@ -15,7 +14,7 @@ localparam DATA_WIDTH = 32;
 localparam STRB_WIDTH = DATA_WIDTH / 8;
 
 rans_if #(RESOLUTION, SYMBOL_WIDTH) rans_multi_stream_if();
-rans_multi_stream #(RESOLUTION, SYMBOL_WIDTH, NUM_RANS) I_rans_multi_stream(rans_multi_stream_if.dut);
+rans_multi_stream #(RESOLUTION, SYMBOL_WIDTH, NUM_RANS) I_rans_multi_stream(rans_multi_stream_if.slave);
 
 logic rvalid_r;
 logic arready_r;
@@ -156,7 +155,7 @@ always_ff @(posedge ctrl_if.aclk) begin
         if (awaddr < (2 ** SYMBOL_WIDTH)) begin
             rans_multi_stream_if.freq_wr_i <= 1;
             rans_multi_stream_if.symb_i <= awaddr[SYMBOL_WIDTH - 1 : 0];
-            {rans_multi_stream.freq_i, rans_multi_stream.cum_freq_i}
+            {rans_multi_stream_if.freq_i, rans_multi_stream_if.cum_freq_i}
                     <= wdata[2 * RESOLUTION - 1 : 0];
         end else if (awaddr == (2 ** SYMBOL_WIDTH)) begin
             rans_multi_stream_if.restart_i <= 1;
