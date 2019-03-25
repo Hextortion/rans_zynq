@@ -10,6 +10,7 @@ module rans_stream #(
     input var logic en_i,
     input var logic freq_wr_i,
     input var logic restart_i,
+    input var logic stall_i,
     input var logic [SYMBOL_WIDTH - 1 : 0] freq_addr_i,
     input var logic [RESOLUTION - 1 : 0] freq_i,
     input var logic [RESOLUTION - 1 : 0] cum_freq_i,
@@ -48,9 +49,11 @@ always_ff @(posedge clk_i) begin
 end
 
 always_ff @(posedge clk_i) begin
-    en_r <= en_i;
-    freq_r <= freqtable[symb_i][2 * RESOLUTION - 1 : RESOLUTION];
-    cum_freq_r <= freqtable[symb_i][RESOLUTION - 1 : 0];
+    if (!stall_i) begin
+        en_r <= en_i;
+        freq_r <= freqtable[symb_i][2 * RESOLUTION - 1 : RESOLUTION];
+        cum_freq_r <= freqtable[symb_i][RESOLUTION - 1 : 0];
+    end
 end
 
 logic en_2r;
@@ -60,11 +63,13 @@ logic [SHIFT_WIDTH - 1 : 0] shift_r;
 logic [RESOLUTION - 1 : 0] cum_freq_2r;
 
 always_ff @(posedge clk_i) begin
-    en_2r <= en_r;
-    cmpl_freq_r <= SCALE - freq_r;
-    rcp_r <= divtable[freq_r][STATE_WIDTH - 1 : 0];
-    shift_r <= divtable[freq_r][DIVTABLE_WIDTH - 1 : STATE_WIDTH];
-    cum_freq_2r <= cum_freq_r;
+    if (!stall_i) begin
+        en_2r <= en_r;
+        cmpl_freq_r <= SCALE - freq_r;
+        rcp_r <= divtable[freq_r][STATE_WIDTH - 1 : 0];
+        shift_r <= divtable[freq_r][DIVTABLE_WIDTH - 1 : STATE_WIDTH];
+        cum_freq_2r <= cum_freq_r;
+    end
 end
 
 logic [STATE_WIDTH - 1 : 0] state_r;
@@ -82,16 +87,18 @@ always_comb begin
 end
 
 always_ff @(posedge clk_i) begin
-    valid_o[0] <= shift_byte[0] && en_2r;
-    valid_o[1] <= shift_byte[1] && en_2r;
-    enc_o <= state_intr[2 * SYMBOL_WIDTH - 1: 0];
+    if (!stall_i) begin
+        valid_o[0] <= shift_byte[0] && en_2r;
+        valid_o[1] <= shift_byte[1] && en_2r;
+        enc_o <= state_intr[2 * SYMBOL_WIDTH - 1: 0];
+    end
 end
 
 always_ff @(posedge clk_i) begin
     if (restart_i) begin
         state_r <= L_MIN;
     end else begin
-        if (en_2r) begin
+        if (en_2r && !stall_i) begin
             if (shift_byte[0]) begin
                 state_r <= state_intr >> SYMBOL_WIDTH;
                 if (shift_byte[1]) begin

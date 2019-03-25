@@ -65,6 +65,7 @@ for (i = 0; i < NUM_RANS; i = i + 1) begin : gen_rans
         .en_i(en_r[i]),
         .freq_wr_i(iface.freq_wr_i),
         .restart_i(iface.restart_i),
+        .stall_i(0),
         .freq_addr_i(iface.symb_i),
         .freq_i(iface.freq_i),
         .cum_freq_i(iface.cum_freq_i),
