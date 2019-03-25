@@ -12,14 +12,17 @@ module rans_multi_stream #(
 logic [$clog2(NUM_RANS) - 1 : 0] cnt_r;
 logic [NUM_RANS - 1 : 0] clk_div_en_r;
 logic clk_div [NUM_RANS];
+logic stall;
 
 always_ff @(posedge iface.clk_i or posedge iface.rst_i) begin
     if (iface.rst_i) begin
         cnt_r <= 0;
         clk_div_en_r <= 1;
     end else begin
-        cnt_r <= cnt_r + 1;
-        clk_div_en_r <= {clk_div_en_r[NUM_RANS - 2 : 0], clk_div_en_r[NUM_RANS - 1]};
+        if (iface.ready_i) begin
+            cnt_r <= cnt_r + 1;
+            clk_div_en_r <= {clk_div_en_r[NUM_RANS - 2 : 0], clk_div_en_r[NUM_RANS - 1]};
+        end
     end
 end
 
@@ -33,7 +36,7 @@ always_ff @(posedge iface.clk_i or posedge iface.rst_i) begin
     end
 end
 
-assign iface.ready_o = !freq_wr_cnt_r;
+assign iface.ready_o = !freq_wr_cnt_r && iface.ready_i;
 
 logic [1 : 0] valid [NUM_RANS];
 logic [2 * SYMBOL_WIDTH - 1 : 0] enc [NUM_RANS];
@@ -65,7 +68,6 @@ for (i = 0; i < NUM_RANS; i = i + 1) begin : gen_rans
         .en_i(en_r[i]),
         .freq_wr_i(iface.freq_wr_i),
         .restart_i(iface.restart_i),
-        .stall_i(0),
         .freq_addr_i(iface.symb_i),
         .freq_i(iface.freq_i),
         .cum_freq_i(iface.cum_freq_i),
@@ -76,8 +78,10 @@ for (i = 0; i < NUM_RANS; i = i + 1) begin : gen_rans
 end
 
 always @(posedge iface.clk_i) begin
-    iface.valid_o <= valid[cnt_r];
-    iface.enc_o <= enc[cnt_r];
+    if (iface.ready_i) begin
+        iface.valid_o <= valid[cnt_r];
+        iface.enc_o <= enc[cnt_r];
+    end
 end
 
 endmodule
