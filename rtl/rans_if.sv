@@ -4,7 +4,7 @@ interface rans_if #(
 );
     logic clk_i;
     logic rst_i;
-    logic en_i;
+    logic valid_i;
     logic freq_wr_i;
     logic restart_i;
     logic [RESOLUTION - 1 : 0] freq_i;

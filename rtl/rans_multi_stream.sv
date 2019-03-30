@@ -53,11 +53,11 @@ genvar i;
     end
 `endif
 
-logic en_r [NUM_RANS];
+logic valid_r [NUM_RANS];
 logic [SYMBOL_WIDTH - 1 : 0] symb_r [NUM_RANS];
 for (i = 0; i < NUM_RANS; i = i + 1) begin
     always @(posedge clk_div[i]) begin
-        en_r[i] <= iface.en_i;
+        valid_r[i] <= iface.valid_i;
         symb_r[i] <= iface.symb_i;
     end
 end
@@ -65,7 +65,7 @@ end
 for (i = 0; i < NUM_RANS; i = i + 1) begin : gen_rans
     rans_stream I_rans(
         .clk_i(clk_div[i]),
-        .en_i(en_r[i]),
+        .valid_i(valid_r[i]),
         .freq_wr_i(iface.freq_wr_i),
         .restart_i(iface.restart_i),
         .freq_addr_i(iface.symb_i),
