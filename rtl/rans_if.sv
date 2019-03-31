@@ -9,6 +9,7 @@ interface rans_if #(
     logic restart_i;
     logic [RESOLUTION - 1 : 0] freq_i;
     logic [RESOLUTION - 1 : 0] cum_freq_i;
+    logic [SYMBOL_WIDTH - 1 : 0] freq_addr_i;
     logic [SYMBOL_WIDTH - 1 : 0] symb_i;
     logic ready_i;
     logic ready_o;
