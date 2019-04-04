@@ -6,7 +6,7 @@ module rans_axi #(
     input var logic clk_i,
     input var logic rst_i,
     axi_lite_if.slave ctrl_if,
-    axi_lite_if.master mem_if,
+    axi_lite_if.master mem_if
 );
 
 localparam ADDR_WIDTH = 32;
@@ -15,7 +15,7 @@ localparam STRB_WIDTH = DATA_WIDTH / 8;
 localparam MEM_DEPTH = 256;
 
 rans_if #(RESOLUTION, SYMBOL_WIDTH) rans_multi_stream_if();
-rans_multi_stream #(RESOLUTION, SYMBOL_WIDTH, NUM_RANS) I_rans_multi_stream(rans_multi_stream_if.slave);
+rans_multi_stream #(RESOLUTION, SYMBOL_WIDTH, NUM_RANS) I_rans_multi_stream(rans_multi_stream_if.dut);
 
 logic rvalid_r;
 logic arready_r;
@@ -174,7 +174,7 @@ end
 
 always_ff @(posedge ctrl_if.aclk) begin
     if (!rstall) begin
-        rdata_r <= mem[raddr];
+        rdata_r <= mem_r[araddr];
     end
 end
 
@@ -188,7 +188,7 @@ always_ff @(posedge ctrl_if.aclk) begin
             rans_multi_stream_if.freq_addr_i                                <= awaddr[SYMBOL_WIDTH - 1 : 0];
             {rans_multi_stream_if.freq_i, rans_multi_stream_if.cum_freq_i}  <= wdata[2 * RESOLUTION - 1 : 0];
         end else begin
-            case (awaddr[7:0]) begin
+            case (awaddr[7:0])
                 'h00: rans_multi_stream_if.restart_i                        <= 1;
                 'h04: ctrl_read_start_addr_r                                <= wdata;
                 'h08: ctrl_length_r                                         <= wdata;

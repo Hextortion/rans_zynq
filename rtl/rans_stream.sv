@@ -75,7 +75,7 @@ logic [2 * STATE_WIDTH + RESOLUTION - 1 : 0] state_int;
 logic [1 : 0] shift_byte;
 
 always_comb begin
-    quotient_intr = state_r * rcp_r;
+    quotient_int = state_r * rcp_r;
     quotient = quotient_int[2 * STATE_WIDTH - 1 : STATE_WIDTH - 1] >> shift_r;
     state_int = (state_r + cum_freq_d1r) + (cmpl_freq_r * quotient);
     shift_byte[0] = state_int >= L_MAX;

@@ -18,11 +18,11 @@ interface rans_if #(
 
     clocking cb @(posedge clk_i);
         input ready_o, valid_o, enc_o;
-        output rst_i, en_i, ready_i, freq_wr_i, restart_i, freq_i, cum_freq_i, symb_i;
+        output rst_i, valid_i, ready_i, freq_wr_i, restart_i, freq_i, cum_freq_i, symb_i;
     endclocking
 
     modport tb (output clk_i, clocking cb);
 
     modport dut (output ready_o, valid_o, enc_o,
-                 input clk_i, rst_i, en_i, ready_i, freq_wr_i, restart_i, freq_i, cum_freq_i, symb_i);
+                 input clk_i, rst_i, valid_i, ready_i, freq_wr_i, restart_i, freq_i, cum_freq_i, symb_i, freq_addr_i);
 endinterface
