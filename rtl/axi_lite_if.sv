@@ -41,7 +41,7 @@ interface axi_lite_if #(
         input wdata, wstrb, wvalid, output wready,
         input araddr, arvalid, output arready,
         output rdata, rresp, rvalid, input rready,
-        output bresp, bvalid, bready
+        output bresp, bvalid, input bready
     );
 
     modport master (
@@ -50,7 +50,7 @@ interface axi_lite_if #(
         output wdata, wstrb, wvalid, input wready,
         output araddr, arvalid, input arready,
         input rdata, rresp, rvalid, output rready,
-        input bresp, bvalid, bready
+        input bresp, bvalid, output bready
     );
 
 endinterface
