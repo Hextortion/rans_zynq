@@ -33,9 +33,10 @@ logic bvalid_r;
 logic rstall;
 assign rstall = rvalid_r && !ctrl_if.rready;
 logic wstall;
-assign wstall = (bvalid_r && !ctrl_if.bready) || !rans_multi_stream_if.ready_o;
+assign wstall = (bvalid_r && !ctrl_if.bready) /*|| !rans_multi_stream_if.ready_o */;
 
 assign ctrl_if.rvalid = rvalid_r;
+assign ctrl_if.rdata = rdata_r;
 assign ctrl_if.arready = arready_r;
 assign ctrl_if.awready = awready_r;
 assign ctrl_if.wready = wready_r;
@@ -159,7 +160,7 @@ end
 always @(posedge ctrl_if.aclk) begin
     if (!ctrl_if.aresetn) begin
         bvalid_r <= 0;
-    end else if (rans_multi_stream_if.ready_o && (!awready_r || ctrl_if.awvalid) && (!wready_r || ctrl_if.wvalid)) begin
+    end else if (/*rans_multi_stream_if.ready_o && */ (!awready_r || ctrl_if.awvalid) && (!wready_r || ctrl_if.wvalid)) begin
         bvalid_r <= 1;
     end else if (ctrl_if.bready) begin
         bvalid_r <= 0;
